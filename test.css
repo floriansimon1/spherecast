@@ -1,0 +1,31 @@
+
+
+  private Vector3 createRandomPosition() {
+    var randomDirection = new Vector3(
+      UnityEngine.Random.Range(-1.0f, 1.0f),
+      UnityEngine.Random.Range(-1.0f, 1.0f),
+      UnityEngine.Random.Range(-1.0f, 1.0f)
+    );
+
+    randomDirection.Normalize();
+
+    return randomDirection * UnityEngine.Random.Range(10.0f, Facts.worldSphereRadius);
+  }
+
+  private Vector3 createRandomVelocity(Vector3 position) {
+    var baseDirection = position * -1;
+
+    baseDirection.Normalize();
+
+    var randomPerturbation = new Vector3(
+      UnityEngine.Random.Range(-0.5f, 0.5f),
+      UnityEngine.Random.Range(-0.5f, 0.5f),
+      UnityEngine.Random.Range(-0.5f, 0.5f)
+    );
+
+    var direction = baseDirection + randomPerturbation;
+
+    direction.Normalize();
+
+    return direction * UnityEngine.Random.Range(speedMinimum, speedMaximum);
+  }
