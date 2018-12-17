@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 public class NameInputField: MonoBehaviour {
@@ -9,16 +10,18 @@ public class NameInputField: MonoBehaviour {
 
 	private bool forceInput = true;
 
-	public float                position;
+	public int                  position;
 	public HighScores           highScores;
 	public InputField           inputValue;
 	public NameInputEndCallback onNameInputEnd;
+	public List<Text>           scoreComponents;
 
 	public delegate void NameInputEndCallback(string name);
 
-	public void startForcedInput(int index) {
-		position   = index;
-		forceInput = true;
+	public void startForcedInput(List<Text> scoreTexts, int index) {
+		scoreComponents = scoreTexts;
+		position        = index;
+		forceInput      = true;
 
 		this.enabled  = true;
 		field.enabled = true;
@@ -79,7 +82,7 @@ public class NameInputField: MonoBehaviour {
 
 			field.transform.position = new Vector3(
 				518.0f,
-				614.0f - 60.0f * position,
+				scoreComponents[position].transform.position.y + 12.0f,
 				0.0f
 			);
 

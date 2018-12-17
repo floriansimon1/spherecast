@@ -18,7 +18,7 @@ public class HighScoresDisplay: MonoBehaviour, HighScoreRefreshReceiver {
 		
 		var nameInputField = scoreInput.GetComponent<NameInputField>();
 
-		nameInputField.startForcedInput(nameToInputIndex);
+		nameInputField.startForcedInput(scoreComponents, nameToInputIndex);
 
 		nameInputField.onNameInputEnd = name => {
 			var score = highScores[nameToInputIndex];
