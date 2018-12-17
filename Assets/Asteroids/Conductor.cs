@@ -1,24 +1,36 @@
 using System;
 using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+
+using OnSceneLoaded = UnityEngine.Events.UnityAction<
+  UnityEngine.SceneManagement.Scene,
+  UnityEngine.SceneManagement.LoadSceneMode
+>;
 
 public class Conductor: MonoBehaviour {
   public List<Level>        levels;
-  public GameObject         player;
 	public AudioSource        hitSound;
+  public HighScores         highScores;
+  public GameObject         playerPrefab;
 	public AudioSource        explosionSound;
   public GameObject         asteroidPrefab;
   public GameObject         blackHolePrefab;
   public WaveMessageDisplay waveMessageDisplay;
 
+  public GameObject bulletsContainer;
   public GameObject levelEntitiesRoot;
   public GameObject levelEntitiesClonesRoot;
 
   public int waveNumber = 1;
 
-  private Level currentLevel;
-  private int   remainingVitalEntities;
+  private GameObject player;
+  private Level      currentLevel;
+  private int        remainingVitalEntities;
+
+  private static Conductor instance;
 
   public void onVitalEntityDestruction() {
     remainingVitalEntities--;
@@ -28,7 +40,87 @@ public class Conductor: MonoBehaviour {
     }
   }
 
+  public void updateHighScores() {
+    var highScoresDisplay = findSceneObject("High scores table").GetComponent<HighScoresDisplay>();
+
+    highScoresDisplay.refreshScores(highScores.scores);
+  }
+
+  public void clearGameScene() {
+    GameObject[] containers = {
+      levelEntitiesClonesRoot,
+      levelEntitiesRoot,
+      bulletsContainer
+    };
+
+    foreach (var container in containers) {
+      foreach (Transform child in container.transform) {
+        Destroy(child.gameObject);
+      }
+    }
+  }
+
   public void Awake() {
+    if (!instance) {
+      instance = this;
+
+      highScores = GetComponent<HighScores>();
+
+      OnSceneLoaded callback = (scene, _) => {
+        clearGameScene();
+
+        if (scene.name == "Game scene") {
+          startGame();
+        } else if (scene.name == "High scores") {
+          updateHighScores();
+        }
+      };
+
+      SceneManager.sceneLoaded += callback;
+
+      return;
+    } else {
+      Destroy(gameObject);
+
+      return;
+    }
+  }
+
+  private void injectPlayerDependencies(GameObject playerObject, ObjectsRegister register) {
+    var damageablePlayer = playerObject.GetComponent<DamageablePlayer>();
+    var bulletShooter    = playerObject.GetComponent<BulletShooter>();
+
+    damageablePlayer.highScores = highScores;
+
+    bulletShooter.bulletsContainer = bulletsContainer;
+
+    bulletShooter.detectDependencies();
+
+    damageablePlayer.scoreDisplay = register.scoreDisplay;
+    damageablePlayer.gameOverText = register.gameOverText;
+    damageablePlayer.greenBar     = register.greenBar;
+    damageablePlayer.blueBar      = register.blueBar;
+  }
+
+  private GameObject findSceneObject(string name) {
+    return SceneManager
+    .GetActiveScene()
+    .GetRootGameObjects()
+    .Where(rootGameObject => rootGameObject.name == name)
+    .First();
+  }
+
+  public void startGame() {
+    waveNumber = 1;
+
+    var register = findSceneObject("Objects register").GetComponent<ObjectsRegister>();
+
+    waveMessageDisplay = register.waveMessageDisplay;
+
+    player = Instantiate(playerPrefab);
+
+    injectPlayerDependencies(player, register);
+
     var damageableAsteroid = asteroidPrefab.GetComponent<DamageableAsteroid>();
 
     damageableAsteroid.conductor      = this;

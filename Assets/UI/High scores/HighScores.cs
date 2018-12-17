@@ -27,7 +27,7 @@ public class HighScores: MonoBehaviour {
 
 	void hydrateScores() {
 		for (var i = 0; i < 7; i++) {
-			scores.Add(new FinalScore { points = 999, name = "AAA" } );
+			scores.Add(new FinalScore { points = 999 + (7 - i) * 1000, name = "AAA" } );
 		}
 	}
 
@@ -40,6 +40,7 @@ public class HighScores: MonoBehaviour {
 		// All scores are higher, therefore this is not a high score.
 		if (index < scores.Count - 1) {
 			scores.Insert(index + 1, score);
+			scores.RemoveAt(scores.Count - 1);
 		}
 
 		var rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();

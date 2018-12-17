@@ -17,6 +17,10 @@ public class Levels {
 
     var simpleAsteroidLevelEntity = simpleAsteroid.GetComponent<LevelEntity>();
 
+    var blackHole = levelEntitiesFactories[LevelEntityType.BlackHole]();
+
+    blackHole.transform.position = Vector3.zero;
+
     simpleAsteroid.transform.position = new Vector3(0.0f, 0.0f, 100.0f);
 
     simpleAsteroid.GetComponent<Rigidbody>().velocity = Utils.makeVelocity(new Vector3(0.0f, 0.0f, -1.0f), 20.0f);
@@ -28,6 +32,7 @@ public class Levels {
     simpleAsteroid.GetComponent<Health>().setMaximum(2);
 
     level.registerVitalEntity(simpleAsteroidLevelEntity);
+    level.entities.Add(blackHole);
 
     return level;
   }

@@ -2,24 +2,21 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-using OnSceneLoaded = UnityEngine.Events.UnityAction<
-  UnityEngine.SceneManagement.Scene,
-  UnityEngine.SceneManagement.LoadSceneMode
->;
-
 public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
   private Health          health;
-  private SimpleHealthBar blueBar;
   private AudioSource     hitSound;
-  private SimpleHealthBar greenBar;
   private Animator        animator;
 
   public GameObject       gameOverText;
+  public ScoreDisplayText scoreDisplay;
   public HighScores       highScores;
   public GameObject       explosion;
   public GameObject       healthBar;
   public GameObject       hitMarker;
-  public ScoreDisplayText display;
+  public SimpleHealthBar  greenBar;
+  public SimpleHealthBar  blueBar;
+
+  public bool dead = false;
 
   public int score { get; set; }
 
@@ -28,13 +25,6 @@ public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
     health   = GetComponent<Health>();
     animator = GetComponent<Animator>();
     hitSound = GetComponents<AudioSource>()[1];
-
-    var bars = healthBar.GetComponentsInChildren<SimpleHealthBar>();
-
-    greenBar = bars[0];
-    blueBar  = bars[1];
-
-    hitMarker.GetComponent<HitMarker>().facedObject = gameObject;
   }
 
   public void scoreHit(Vector3 position, Bullet bullet) {
@@ -42,7 +32,7 @@ public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
 
     score += increase;
 
-    display.displayScore(this);
+    scoreDisplay.displayScore(this);
 
     showHitMarker(position, bullet.pointsGiven);
   }
@@ -51,6 +41,8 @@ public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
     var marker = Instantiate(hitMarker, position, Quaternion.identity);
 
     var text = marker.GetComponent<TextMesh>();
+
+    marker.GetComponent<HitMarker>().facedObject = gameObject;
 
     text.text = pointsGiven + "!";
   }
@@ -84,6 +76,12 @@ public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
   }
 
   public IEnumerator die() {
+    if (dead) {
+      yield break;
+    }
+
+    dead = true;
+
     var rigidBody         = GetComponent<Rigidbody>();
     var explosionInstance = Instantiate(explosion, transform.position, Quaternion.identity) as GameObject;
 
@@ -104,19 +102,11 @@ public class DamageablePlayer: DamageableByAsteroid, ScoreEntity {
 
     yield return new WaitForSeconds(3.0f);
 
-    /*
-    * TODO: Find how to get rid the callback once it has run once.
-    * For now, this leaks DamageablePlayer memory.
-    */
-    OnSceneLoaded callback = (scene, _) => {
-      highScores.registerScore(new FinalScore {
-        points = score,
-        name   = "ACE"
-      });
-    };
-
-    SceneManager.sceneLoaded += callback;
+    highScores.registerScore(new FinalScore {
+      points = score,
+      name   = ""
+    });
 
     SceneManager.LoadScene("High scores");
-  }
+}
 }

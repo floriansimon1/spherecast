@@ -1,6 +1,8 @@
 namespace Optional {
   public class UnwrapNoneError: System.Exception {}
 
+  public delegate void OnValue<T>(T value);
+
   public abstract class Optional<T> {
     public readonly bool valuePresent;
 
@@ -15,6 +17,7 @@ namespace Optional {
     }
 
     public abstract T get();
+    public abstract void tap(OnValue<T> onValue);
   }
 
   public class Some<T>: Optional<T> {
@@ -27,6 +30,10 @@ namespace Optional {
     public override T get() {
       return value;
     }
+
+    public override void tap(OnValue<T> onValue) {
+      onValue(value);
+    }
   }
 
   public class None<T>: Optional<T> {
@@ -34,6 +41,9 @@ namespace Optional {
 
     public override T get() {
       throw new UnwrapNoneError();
+    }
+
+    public override void tap(OnValue<T> onValue) {
     }
   }
 }

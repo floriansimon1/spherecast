@@ -13,7 +13,7 @@ public class BulletShooter: MonoBehaviour {
   private AudioSource shotSound;
   private float       lastShotTime = 0.0f;
 
-  void Start() {
+  public void detectDependencies() {
     rigidBody   = GetComponent<Rigidbody>();
     shotSound   = GetComponents<AudioSource>()[0];
     scoreEntity = GetComponent<DamageablePlayer>();
