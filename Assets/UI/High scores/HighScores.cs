@@ -27,7 +27,7 @@ public class HighScores: MonoBehaviour {
 
 	void hydrateScores() {
 		for (var i = 0; i < 7; i++) {
-			scores.Add(new FinalScore { points = 999 + (7 - i) * 1000, name = "AAA" } );
+			scores.Add(new FinalScore { points = 999 + (6 - i) * 1000, name = "AAA" } );
 		}
 	}
 
