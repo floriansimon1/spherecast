@@ -39,7 +39,7 @@ public class NameInputField: MonoBehaviour {
 
 		stopForcedInput();
 
-		var regexp = new Regex("[^a-z]");
+		var regexp = new Regex("[^a-zA-Z]");
 
 		inputValue = GetComponent<InputField>();
 

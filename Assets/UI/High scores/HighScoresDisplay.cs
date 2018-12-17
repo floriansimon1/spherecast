@@ -23,7 +23,7 @@ public class HighScoresDisplay: MonoBehaviour, HighScoreRefreshReceiver {
 		nameInputField.onNameInputEnd = name => {
 			var score = highScores[nameToInputIndex];
 			
-			score.name = name;
+			score.name = name.ToUpper();
 
 			highScores[nameToInputIndex] = score;
 
